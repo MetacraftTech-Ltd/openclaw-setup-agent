@@ -97,7 +97,7 @@ These terms are governed by the laws of England and Wales.
 
 ## Contact
 
-- Email: legal@kingos.net
+- Email: king@metacrafttech.com
 - GitHub: https://github.com/MetacraftTech-Ltd/openclaw-setup-agent
 
 ## Summary

@@ -69,7 +69,7 @@ We may update this policy occasionally. Check the "Last updated" date above.
 ## Contact
 
 For privacy questions:
-- Email: privacy@kingos.net
+- Email: king@metacrafttech.com
 - GitHub: https://github.com/MetacraftTech-Ltd/openclaw-setup-agent/issues
 
 ## Summary

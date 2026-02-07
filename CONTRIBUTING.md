@@ -96,7 +96,7 @@ Be respectful. We're all here to build something useful.
 ## Questions?
 
 - Open a [GitHub Discussion](https://github.com/MetacraftTech-Ltd/openclaw-setup-agent/discussions)
-- Email: contribute@kingos.net
+- Email: king@metacrafttech.com
 
 ## License
 
