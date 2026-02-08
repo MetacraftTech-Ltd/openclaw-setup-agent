@@ -10,11 +10,22 @@
 
 The OpenClaw Setup Agent is an intelligent CLI tool that automates the complex process of setting up [OpenClaw (Clawdbot)](https://github.com/anthropics/clawdbot), an advanced AI assistant framework. Instead of wrestling with configuration files, API keys, and integration setup, this agent guides you through an interactive process that gets you up and running quickly.
 
+**NEW in v1.1.0:** Smart subscription detection, hardware-aware recommendations, automatic security hardening, and personalized post-setup guides!
+
 ## ✨ Features
 
+### 🆕 NEW in v1.1.0-beta.1
+- 🔍 **Smart Subscription Detection** - Detects your current AI subscriptions (ChatGPT Plus/Pro, Claude Pro/Max) and routes setup accordingly
+- 🖥️ **Hardware-Aware Recommendations** - Analyzes RAM, disk, and GPU to recommend optimal configurations
+- 🆓 **Free Model Support** - Complete setup path for users without subscriptions (Kimi K2.5, Gemini Flash)
+- 🛡️ **Automatic Security Hardening** - Applies security best practices by default (localhost binding, token auth, secure permissions)
+- 📖 **Personalized Post-Setup Guide** - Generates custom documentation with next steps based on your setup
+- 💡 **Smart Model Recommendations** - Warns against problematic models, suggests cost-optimal configurations
+
+### Core Features
 - 🧠 **Intelligent Environment Analysis** - Automatically detects your system and identifies potential issues
 - 🔧 **Interactive Configuration** - Step-by-step setup with smart defaults and recommendations
-- 🤖 **Multiple AI Providers** - Support for Anthropic Claude, OpenAI GPT, OpenRouter, and local models (Ollama)
+- 🤖 **Multiple AI Providers** - Support for Anthropic Claude, OpenAI GPT, OpenRouter, local models (Ollama), and free services
 - 💬 **Multi-Channel Setup** - Configure WhatsApp, Telegram, Discord, Slack, and Terminal interfaces
 - ✅ **Validation & Testing** - Ensures your configuration works before completing setup
 - 🛡️ **Security-First** - Implements best practices for API key management and access control
@@ -53,49 +64,79 @@ npx openclaw-setup
 
 ## 🎯 What This Tool Does
 
-### 1. Environment Analysis
+### 1. Subscription Detection (NEW)
+- Automatically detects your current AI service usage
+- Routes setup based on ChatGPT Plus/Pro/Max, Claude Pro/Max subscriptions
+- Provides proxy setup guidance for subscription users
+- Dedicated free model path for users without paid subscriptions
+
+### 2. System Pre-Check (NEW)
+- Comprehensive hardware analysis (RAM, disk space, GPU)
+- Hardware-capability-based recommendations
+- Local AI model feasibility assessment
+- Performance optimization suggestions
+
+### 3. Environment Analysis
 - Detects your operating system and architecture
 - Checks Node.js and package manager versions
 - Analyzes network connectivity and proxy settings
 - Identifies potential conflicts with existing installations
 
-### 2. AI Provider Setup
-- **Anthropic Claude** - OpenClaw's recommended provider
-- **OpenAI GPT** - Popular choice with GPT-4 and GPT-4o
+### 4. AI Provider Setup (Enhanced)
+- **Anthropic Claude** - OpenClaw's recommended provider with smart model selection
+- **OpenAI GPT** - Popular choice with GPT-4 and GPT-4o (warns against GPT-4.1)
 - **OpenRouter** - Access multiple models through one API
-- **Local Models** - Privacy-focused Ollama integration
+- **Local Models** - Privacy-focused Ollama integration with hardware matching
+- **Free Models (NEW)** - Kimi K2.5, Gemini Flash, Hugging Face integration
 - **Custom Providers** - OpenAI-compatible APIs
 
-### 3. Communication Channels
+### 5. Communication Channels
 - **WhatsApp** - Chat via WhatsApp Web (QR code pairing)
 - **Telegram** - Fast bot integration with BotFather setup
 - **Discord** - Server and DM support with slash commands
 - **Slack** - Professional team communication (advanced setup)
 - **Terminal** - Command-line interface
 
-### 4. Configuration Generation
-- Creates a complete `clawdbot.yaml` configuration file
-- Implements security best practices
-- Optimizes settings based on your use case
-- Includes helpful comments and documentation
+### 6. Security Hardening (NEW)
+- Automatic security configuration (localhost binding, token authentication)
+- Secure file permissions (chmod 700)
+- Rate limiting and input validation
+- Tailscale recommendations for remote access
 
-### 5. Validation & Launch
+### 7. Configuration Generation (Enhanced)
+- Creates a complete `clawdbot.yaml` configuration file
+- Implements security best practices automatically
+- Multi-tier provider setup (primary/fallback/onboarding)
+- Optimizes settings based on your use case and hardware
+
+### 8. Post-Setup Guide Generation (NEW)
+- Creates personalized `OPENCLAW_SETUP_GUIDE.md`
+- Channel-specific quick start instructions
+- Commands cheatsheet based on experience level
+- Troubleshooting guide tailored to your configuration
+
+### 9. Validation & Launch
 - Tests API connections and channel configurations
 - Validates system requirements and permissions
+- Security configuration validation
 - Offers to start Clawdbot immediately
 - Provides troubleshooting guidance
 
 ## 📖 Usage Guide
 
-### Basic Setup Flow
+### Enhanced Setup Flow (v1.1.0)
 
 1. **Welcome & Preferences** - The agent explains OpenClaw and asks about your experience level and intended use
-2. **Environment Scan** - Automatically analyzes your system for compatibility
-3. **Provider Configuration** - Set up AI model providers with interactive guidance
-4. **Channel Setup** - Configure how you want to interact with your AI assistant
-5. **Configuration Generation** - Creates optimized `clawdbot.yaml` file
-6. **Validation** - Tests all connections and settings
-7. **Launch** - Option to start OpenClaw immediately
+2. **🆕 Subscription Detection** - Intelligent detection of your current AI subscriptions and usage
+3. **🆕 System Pre-Check** - Hardware analysis (RAM, disk, GPU) with capability-based recommendations
+4. **Environment Scan** - Software environment analysis for compatibility
+5. **🆕 Smart Provider Configuration** - AI provider setup with subscription-aware recommendations
+6. **Channel Setup** - Configure how you want to interact with your AI assistant  
+7. **🆕 Security Hardening** - Automatic application of security best practices
+8. **Configuration Generation** - Creates optimized `clawdbot.yaml` file with multi-tier providers
+9. **Validation** - Tests all connections and security settings
+10. **🆕 Post-Setup Guide** - Generates personalized documentation and next steps
+11. **Launch** - Option to start OpenClaw immediately
 
 ### Example Session
 

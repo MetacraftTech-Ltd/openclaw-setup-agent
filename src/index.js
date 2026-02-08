@@ -1,20 +1,26 @@
 /**
  * OpenClaw Setup Agent - Main Module
  * 
- * This module orchestrates the entire setup process, from initial welcome
- * to final validation and launch offer.
+ * This module orchestrates the entire setup process, from subscription detection
+ * to final validation and post-setup guide generation.
  */
 
 import chalk from 'chalk';
 import boxen from 'boxen';
 import ora from 'ora';
 import inquirer from 'inquirer';
+import path from 'path';
 import { welcomeFlow } from './prompts/welcome.js';
+import { subscriptionDetectionFlow } from './prompts/subscription.js';
+import { performSystemPreCheck, displaySystemCheck } from './utils/systemCheck.js';
 import { environmentAnalysis } from './prompts/environment.js';
 import { providerFlow } from './prompts/providers.js';
+import { configureFreeModels } from './providers/freeModels.js';
 import { channelsFlow } from './prompts/channels.js';
 import { generateConfig } from './generators/config.js';
+import { applySecurityHardening, displaySecurityResults } from './utils/security.js';
 import { validateSetup } from './validators/setup.js';
+import { generatePostSetupGuide, writePostSetupGuide, displayPostSetupSummary } from './generators/postSetup.js';
 import { finalizeSetup } from './prompts/finalize.js';
 
 /**
@@ -34,8 +40,21 @@ export async function setupAgent() {
             return;
         }
         
-        // Step 2: Environment analysis
-        console.log(chalk.blue('\n🔍 Analyzing your system environment...'));
+        // Step 2: NEW - Subscription Detection Flow
+        console.log(chalk.blue('\n🔍 Detecting your AI subscription status...'));
+        const subscriptionInfo = await subscriptionDetectionFlow();
+        
+        // Step 3: NEW - System Pre-Check
+        console.log(chalk.blue('\n🖥️  Performing system pre-check...'));
+        const systemCheckSpinner = ora('Analyzing hardware capabilities').start();
+        const systemInfo = await performSystemPreCheck();
+        systemCheckSpinner.succeed('System analysis complete');
+        
+        // Display system check results
+        displaySystemCheck(systemInfo);
+        
+        // Step 4: Environment analysis (existing but enhanced)
+        console.log(chalk.blue('\n🔧 Analyzing software environment...'));
         const envSpinner = ora('Scanning system configuration').start();
         const environment = await environmentAnalysis();
         envSpinner.succeed('Environment analysis complete');
@@ -43,26 +62,44 @@ export async function setupAgent() {
         // Show environment summary
         displayEnvironmentSummary(environment);
         
-        // Step 3: Provider selection and configuration
+        // Step 5: Provider selection based on subscription type
         console.log(chalk.blue('\n🧠 Setting up AI providers...'));
-        const providers = await providerFlow(environment);
+        let providers;
         
-        // Step 4: Channel selection and setup
+        if (subscriptionInfo.routing.recommendedPath === 'free-models') {
+            providers = await configureFreeModels(systemInfo);
+        } else {
+            providers = await providerFlow(environment, subscriptionInfo, systemInfo);
+        }
+        
+        // Step 6: Channel selection and setup
         console.log(chalk.blue('\n💬 Configuring communication channels...'));
         const channels = await channelsFlow(environment);
         
-        // Step 5: Generate clawdbot.yaml configuration
+        // Step 7: Generate clawdbot.yaml configuration
         console.log(chalk.blue('\n⚙️  Generating configuration...'));
         const configSpinner = ora('Creating clawdbot.yaml').start();
+        const configPath = path.resolve(process.cwd(), 'clawdbot.yaml');
         const config = await generateConfig({
             environment,
             providers,
             channels,
-            userPreferences: welcomeResult.preferences
+            userPreferences: welcomeResult.preferences,
+            subscriptionInfo,
+            systemInfo
         });
         configSpinner.succeed('Configuration generated successfully');
         
-        // Step 6: Validate configuration
+        // Step 8: NEW - Apply Security Hardening
+        console.log(chalk.blue('\n🛡️  Applying security hardening...'));
+        const securitySpinner = ora('Configuring security settings').start();
+        const securityResults = applySecurityHardening(config, configPath);
+        securitySpinner.succeed('Security hardening applied');
+        
+        // Display security results
+        displaySecurityResults(securityResults);
+        
+        // Step 9: Validate configuration
         console.log(chalk.blue('\n✅ Validating setup...'));
         const validationSpinner = ora('Testing configuration').start();
         const validation = await validateSetup(config, environment);
@@ -90,8 +127,25 @@ export async function setupAgent() {
             }
         }
         
-        // Step 7: Finalize and offer to start Clawdbot
+        // Step 10: NEW - Generate Post-Setup Guide
+        console.log(chalk.blue('\n📖 Generating your personalized setup guide...'));
+        const guideSpinner = ora('Creating documentation').start();
+        const postSetupGuide = generatePostSetupGuide(config, welcomeResult.preferences, {
+            subscriptionInfo,
+            systemInfo,
+            securityResults,
+            validation
+        });
+        
+        const guidePath = path.resolve(process.cwd(), 'OPENCLAW_SETUP_GUIDE.md');
+        const guideWritten = writePostSetupGuide(postSetupGuide, guidePath);
+        guideSpinner.succeed('Setup guide generated');
+        
+        // Step 11: Finalize and offer to start Clawdbot
         await finalizeSetup(config, validation);
+        
+        // Step 12: NEW - Display personalized post-setup summary
+        displayPostSetupSummary(postSetupGuide, guideWritten ? guidePath : null);
         
         // Success banner
         showSuccessBanner();
@@ -110,7 +164,7 @@ function showWelcomeBanner() {
     const banner = chalk.cyan.bold(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║           🦾 OpenClaw Setup Agent v1.0.0                 ║
+║           🦾 OpenClaw Setup Agent v1.1.0-beta.1          ║
 ║                                                           ║
 ║     From zero to working AI assistant in 30 minutes      ║
 ║                                                           ║

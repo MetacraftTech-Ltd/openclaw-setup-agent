@@ -7,13 +7,18 @@ import inquirer from 'inquirer';
 import fetch from 'node-fetch';
 
 /**
- * Configure AI providers based on user preferences
+ * Configure AI providers based on user preferences and subscription info
  */
-export async function providerFlow(environment) {
+export async function providerFlow(environment, subscriptionInfo = null, systemInfo = null) {
     console.log('');
     console.log(chalk.white.bold('🧠 AI Provider Setup'));
     console.log(chalk.gray('OpenClaw can work with multiple AI providers. Let\'s set up at least one.'));
     console.log('');
+
+    // Show smart recommendations based on subscription
+    if (subscriptionInfo) {
+        displaySmartRecommendations(subscriptionInfo, systemInfo);
+    }
 
     // Show provider options with recommendations
     const providerChoice = await inquirer.prompt([
@@ -146,9 +151,9 @@ async function configureAnthropic(isPrimary) {
             name: 'model',
             message: 'Which Claude model would you like to use?',
             choices: [
-                { name: 'Claude 3.5 Sonnet (Recommended) - Best balance of speed and intelligence', value: 'claude-3-5-sonnet-20241022' },
+                { name: 'Claude 3.5 Sonnet (⭐ Recommended) - Best balance of speed and intelligence', value: 'claude-3-5-sonnet-20241022' },
                 { name: 'Claude 3.5 Haiku - Fastest, great for simple tasks', value: 'claude-3-5-haiku-20241022' },
-                { name: 'Claude 3 Opus - Most capable, slower and more expensive', value: 'claude-3-opus-20240229' }
+                { name: 'Claude 3 Opus - Most capable, use for onboarding only (expensive)', value: 'claude-3-opus-20240229' }
             ],
             default: 'claude-3-5-sonnet-20241022'
         }
@@ -202,9 +207,10 @@ async function configureOpenAI(isPrimary) {
             message: 'Which OpenAI model would you like to use?',
             choices: [
                 { name: 'GPT-4o (Recommended) - Latest multimodal model', value: 'gpt-4o' },
-                { name: 'GPT-4o Mini - Faster and cheaper', value: 'gpt-4o-mini' },
-                { name: 'GPT-4 Turbo - Previous generation, still excellent', value: 'gpt-4-turbo' }
-            ],
+                { name: 'GPT-4o Mini - Faster and cheaper for daily use', value: 'gpt-4o-mini' },
+                { name: 'GPT-4 Turbo - Previous generation, still excellent', value: 'gpt-4-turbo' },
+                { name: '⚠️  GPT-4.1 - Avoid (known tool execution issues)', value: 'gpt-4.1', disabled: true }
+            ].filter(choice => !choice.disabled),
             default: 'gpt-4o'
         }
     ]);
@@ -445,4 +451,66 @@ function getProviderDisplayName(providerType) {
         case 'custom': return 'Custom Provider';
         default: return providerType;
     }
+}
+
+/**
+ * Display smart recommendations based on subscription and system info
+ */
+function displaySmartRecommendations(subscriptionInfo, systemInfo) {
+    console.log(chalk.blue.bold('💡 Smart Recommendations Based on Your Setup:'));
+    console.log('');
+
+    switch (subscriptionInfo.subscriptionType) {
+        case 'claude-subscription':
+            console.log(chalk.green('✅ Perfect! You have Claude Pro/Max'));
+            console.log(chalk.white('• Recommended: Use Claude 3.5 Sonnet for daily tasks'));
+            console.log(chalk.white('• Consider: Claude 3 Opus for onboarding/complex tasks'));
+            console.log(chalk.yellow('• Note: Use API for better OpenClaw integration'));
+            break;
+
+        case 'chatgpt-subscription':
+            console.log(chalk.green('✅ Great! You have ChatGPT Plus/Pro/Max'));
+            console.log(chalk.white('• Recommended: GPT-4o for balanced performance'));
+            console.log(chalk.white('• Consider: GPT-4o Mini for frequent daily use'));
+            console.log(chalk.red('• ⚠️  Avoid: GPT-4.1 (known tool execution issues)'));
+            break;
+
+        case 'api-keys':
+            console.log(chalk.green('✅ Excellent! Direct API access'));
+            console.log(chalk.white('• Primary: Claude 3.5 Sonnet (best balance)'));
+            console.log(chalk.white('• Onboarding: Claude 3 Opus (highest quality)'));
+            console.log(chalk.white('• Daily: Claude 3.5 Haiku (faster, cheaper)'));
+            break;
+
+        case 'developer-tools':
+            console.log(chalk.green('✅ Developer-friendly setup'));
+            console.log(chalk.white('• Consider: GitHub Copilot integration'));
+            console.log(chalk.white('• Recommended: API-based providers for flexibility'));
+            break;
+
+        case 'free-only':
+            console.log(chalk.yellow('ℹ️  Free tier setup - great for getting started!'));
+            console.log(chalk.white('• Primary: Kimi K2.5 (free via Nvidia)'));
+            console.log(chalk.white('• Fallback: Google Gemini Flash'));
+            if (systemInfo?.capabilities?.canRunLocal) {
+                console.log(chalk.white('• Bonus: Local models with your hardware'));
+            }
+            break;
+    }
+
+    // Hardware-specific recommendations
+    if (systemInfo?.capabilities?.recommendLocal) {
+        console.log('');
+        console.log(chalk.cyan('🏠 Local AI Recommendation:'));
+        console.log(chalk.white('• Your hardware can run local models efficiently'));
+        console.log(chalk.white('• Consider Ollama for privacy and offline use'));
+        console.log(chalk.white('• Suggested: Llama 3.1 8B or Qwen 2.5 7B'));
+    } else if (systemInfo?.capabilities?.canRunLocal) {
+        console.log('');
+        console.log(chalk.yellow('💻 Limited Local AI:'));
+        console.log(chalk.white('• Local models possible but may be slower'));
+        console.log(chalk.white('• Stick to cloud providers for best experience'));
+    }
+
+    console.log('');
 }

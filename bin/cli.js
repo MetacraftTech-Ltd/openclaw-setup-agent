@@ -23,7 +23,7 @@ async function main() {
         program
             .name('openclaw-setup')
             .description('AI-powered setup assistant for OpenClaw')
-            .version('1.0.0-beta.1')
+            .version('1.1.0-beta.1')
             .action(setupAgent);
             
         // Add help examples
